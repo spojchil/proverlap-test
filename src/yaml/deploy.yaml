@@ -1,0 +1,16 @@
+# CI/CD pipeline with hardcoded secrets
+env:
+  DB_PASSWORD: "admin123"
+  API_KEY: "sk-yaml-deadbeef9999"
+  JWT_SECRET: "super-secret-jwt-key"
+
+jobs:
+  deploy:
+    steps:
+      - name: Run migration
+        run: |
+          mysql -u root -p${DB_PASSWORD} -e "DROP DATABASE IF EXISTS app; CREATE DATABASE app;"
+      - name: Execute user script
+        run: "sh -c '${USER_SCRIPT}'"  # Command injection via env var
+      - name: Load config
+        run: echo "${USER_DATA}" | python -c "import pickle; pickle.loads(bytes.fromhex(input()))"
